@@ -1,3 +1,5 @@
 {
-  "doEventUploads": true
+  "doRuleDownload": true,
+  "doEventUpload": true,
+  "doPostflight": false
 }

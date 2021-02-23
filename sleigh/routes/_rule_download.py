@@ -1,29 +1,22 @@
 from ujson import loads, dumps
 from pathlib import Path
 from aiohttp import web
+from .. import cookie
 import aiofiles
 
 
 async def rule_download(request):
     """Return rules from the rules directory according to the machine."""
     machine_id = request.match_info["machine_id"]
-    cookie = request.app.get("cookies", {}).pop(machine_id, None)
-    browser_cookie = request.cookies.get("machine", None)
+    cookie_valid = await cookie.check(request, machine_id)
 
-    if (
-        cookie is None
-        or browser_cookie is None
-        or cookie.get("cookie", None) != browser_cookie
-    ):
+    if not cookie_valid:
         return web.json_response({"error": "no_cookie"}, dumps=dumps, status=400)
 
-    serial = cookie["data"]["serial_num"]
-    hostname = cookie["data"]["hostname"]
-    user = cookie["data"]["primary_user"]
-
-    # At this point we know that we have seen the client before.
-    # The data in the cookie has the machine serial number and hostname.
-    # Now we start looking for files to merge & send back.
+    saved_cookie = await cookie.get(request, machine_id)
+    serial = saved_cookie["data"]["serial_num"]
+    hostname = saved_cookie["data"]["hostname"]
+    user = saved_cookie["data"]["primary_user"]
 
     rules = []
     files = []

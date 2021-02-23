@@ -20,18 +20,19 @@ async def preflight(request):
         return web.json_response({"error": "invalid_body"}, dumps=dumps, status=400)
 
     filename = ""
+    config = Path("config").resolve()
 
-    if Path(f"config/preflight/{machine_id}.json").is_file():
-        filename = f"config/preflight/{machine_id}.json"
+    if Path(f"{config}/preflight/{machine_id}.json").is_file():
+        filename = f"{config}/preflight/{machine_id}.json"
 
-    elif Path(f"config/preflight/{serial}.json").is_file():
-        filename = f"config/preflight/{serial}.json"
+    elif Path(f"{config}/preflight/{serial}.json").is_file():
+        filename = f"{config}/preflight/{serial}.json"
 
-    elif Path(f"config/preflight/{hostname}.json").is_file():
-        filename = f"config/preflight/{hostname}.json"
+    elif Path(f"{config}/preflight/{hostname}.json").is_file():
+        filename = f"{config}/preflight/{hostname}.json"
 
-    elif Path("config/preflight/_default.json").is_file():
-        filename = "config/preflight/_default.json"
+    elif Path(f"{config}/preflight/_default.json").is_file():
+        filename = f"{config}/preflight/_default.json"
 
     else:
         return web.json_response({"error": "not_found"}, dumps=dumps, status=404)
