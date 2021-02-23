@@ -1,7 +1,7 @@
 This folder is where preflight configurations are stored.
 Preflight configurations are tried in the following order:
 
-Machine ID -> Machine Owner -> _default
+Machine ID -> Serial Number -> Primary User -> Hostname -> _default
 
 You can use the Machine Owner key to "group" machines to the same config.
 If all your machines are using the same config, then use _default.
