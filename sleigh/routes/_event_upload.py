@@ -6,6 +6,7 @@ from .. import cookie
 from json import dump
 import aiofiles
 
+
 async def event_upload(request):
     machine_id = request.match_info["machine_id"]
     cookie_valid = await cookie.check(request, machine_id)
