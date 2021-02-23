@@ -1,3 +1,4 @@
 {
-  "client_mode": "MONITOR"
+  "client_mode": "MONITOR",
+  "clean_sync": true
 }

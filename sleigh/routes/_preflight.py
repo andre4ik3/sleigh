@@ -19,30 +19,27 @@ async def preflight(request):
     except (ValueError, KeyError):
         return web.json_response({"error": "invalid_body"}, dumps=dumps, status=400)
 
-    filename = ""
-    config = Path("config").resolve()
+    config = {}
+    paths = [
+        Path("config/preflight/_default.json"),
+        Path(f"config/preflight/{machine_id}.json"),
+        Path(f"config/preflight/{hostname}.json"),
+        Path(f"config/preflight/{serial}.json")
+    ]
 
-    if Path(f"{config}/preflight/{machine_id}.json").is_file():
-        filename = f"{config}/preflight/{machine_id}.json"
+    for path in paths:
+        path = path.resolve()
+        if path.is_file():
+            async with aiofiles.open(path) as file:
+                config.update(loads(await file.read()))
 
-    elif Path(f"{config}/preflight/{serial}.json").is_file():
-        filename = f"{config}/preflight/{serial}.json"
-
-    elif Path(f"{config}/preflight/{hostname}.json").is_file():
-        filename = f"{config}/preflight/{hostname}.json"
-
-    elif Path(f"{config}/preflight/_default.json").is_file():
-        filename = f"{config}/preflight/_default.json"
-
-    else:
+    if config == {}:
         return web.json_response({"error": "not_found"}, dumps=dumps, status=404)
 
-    async with aiofiles.open(filename) as file:
-        config = await file.read()
-        set_cookie = await cookie.set(request, machine_id)
+    set_cookie = await cookie.set(request, machine_id)
 
-        return web.Response(
-            text=config,
-            content_type="application/json",
-            headers=set_cookie,
-        )
+    return web.json_response(
+        config,
+        headers=set_cookie,
+        dumps=dumps
+    )
