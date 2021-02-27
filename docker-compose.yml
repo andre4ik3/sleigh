@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  main:
+    build: .
+    volumes:
+      - sleigh:/etc/sleigh
+    ports:
+      - "8443:443"
+volumes:
+  sleigh: {}
