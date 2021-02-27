@@ -2,19 +2,12 @@ name: Docker
 
 on:
   push:
-    # Publish `main` as Docker `latest` image.
-    branches:
-      - main
-
-    # Publish `v1.2.3` tags as releases.
     tags:
       - v*
 
-  # Run tests for any PRs.
   pull_request:
 
 env:
-  # TODO: Change variable to your image's name.
   IMAGE_NAME: sleigh
 
 jobs:
@@ -24,9 +17,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - name: Run
+      - name: Run Tests
         run: |
           if [ -f docker-compose.test.yml ]; then
             docker-compose --file docker-compose.test.yml build
@@ -35,17 +29,15 @@ jobs:
             docker build . --file Dockerfile
           fi
 
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
   Push:
-    # Ensure test job passes before pushing image.
     needs: Tests
 
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Build Image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
