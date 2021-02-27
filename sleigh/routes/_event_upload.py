@@ -23,7 +23,7 @@ async def event_upload(request):
     year = date.strftime("%Y")
     month = date.strftime("%m")
     day = date.strftime("%d")
-    
+
     path = Path(f"config/events/{year}/{month}/{day}").resolve()
     path.mkdir(parents=True, exist_ok=True)
 

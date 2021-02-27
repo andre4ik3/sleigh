@@ -24,7 +24,7 @@ async def preflight(request):
         Path("config/preflight/_default.json"),
         Path(f"config/preflight/{machine_id}.json"),
         Path(f"config/preflight/{hostname}.json"),
-        Path(f"config/preflight/{serial}.json")
+        Path(f"config/preflight/{serial}.json"),
     ]
 
     for path in paths:
@@ -38,8 +38,4 @@ async def preflight(request):
 
     set_cookie = await cookie.set(request, machine_id)
 
-    return web.json_response(
-        config,
-        headers=set_cookie,
-        dumps=dumps
-    )
+    return web.json_response(config, headers=set_cookie, dumps=dumps)
