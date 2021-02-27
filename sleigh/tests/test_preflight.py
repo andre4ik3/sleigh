@@ -1,4 +1,3 @@
-from subprocess import check_call
 from ujson import dumps, loads
 from pathlib import Path
 from aiohttp import web
@@ -58,11 +57,3 @@ async def test_valid(cli):
         assert resp.status == 200
         assert await resp.json(loads=loads) == expected_result
         assert resp.cookies["machine"] != None
-
-
-async def test_cleanup(cli):
-    for file in Path("config/preflight").resolve().glob("*.json"):
-        if not file.name == "_default.json":
-            check_call(["/bin/rm", file])
-        else:
-            check_call(["/usr/bin/git", "restore", file])
