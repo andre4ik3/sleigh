@@ -93,7 +93,7 @@ jobs:
           git config --global user.email 'andre4ik3@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git commit -am "[ci-skip] Reformat Code with Black"
-          git push
+          git push origin HEAD:$GITHUB_REF
 
   scan-1:
     name: GraphQL Scan
