@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  lint-1:
+  lint:
     name: Flake8 Lint
     runs-on: ubuntu-latest
 
@@ -28,9 +28,40 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+  format:
+    name: Black Format
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install Black
+        run: |
+        python -m pip install -U pip
+        python -m pip install -U black
+
+      - name: Check Format
+        run: black --check .
+
+      - name: Reformat Code
+        if: failure()
+        run: |
+          black .
+          git config --global user.name 'blackbot'
+          git config --global user.email 'andre4ik3@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git checkout $GITHUB_HEAD_REF
+          git commit -am "fixup: Reformat Code with Black"
+          git push
+
   scan-1:
     name: GraphQL Scan
-    needs: lint-1
+    needs: lint
     runs-on: ubuntu-latest
 
     strategy:
@@ -50,7 +81,7 @@ jobs:
 
   scan-2:
     name: OSSAR Scan
-    needs: lint-1
+    needs: lint
     runs-on: windows-latest
 
     steps:
@@ -73,7 +104,7 @@ jobs:
         sarif_file: ${{ steps.ossar.outputs.sarifFile }}
 
   docker-test:
-    name: Run Docker Tests
+    name: Docker Tests
     needs: [scan-1, scan-2]
     runs-on: ubuntu-latest
 
@@ -91,7 +122,7 @@ jobs:
           fi
 
   docker-push:
-    name: Push Docker Container
+    name: Docker Push Container
     needs: [docker-test]
 
     runs-on: ubuntu-latest
