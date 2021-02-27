@@ -6,7 +6,7 @@ on:
 
 jobs:
   ci-skip:
-    name: CI Skip Test
+    name: Skip Test
     runs-on: ubuntu-latest
 
     outputs:
@@ -69,15 +69,18 @@ jobs:
           python -m pip install -U black
 
       - name: Check Format
-        run: black --check .
+        run: |
+          black --check .
+          echo "should_format=$?" >> $GITHUB_ENV
+          exit 0
 
       - name: Reformat Code
-        if: failure()
+        if: env.should_format
         run: |
           black .
 
       - name: Commit New Code (PR)
-        if: failure() && github.event_name == 'pull_request'
+        if: env.should_format && github.event_name == 'pull_request'
         run: |
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
@@ -87,7 +90,7 @@ jobs:
           git push
 
       - name: Commit New Core (Push)
-        if: failure() && github.event_name == 'push'
+        if: env.should_format && github.event_name == 'push'
         run: |
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
@@ -98,7 +101,7 @@ jobs:
   scan-1:
     name: GraphQL Scan
     needs: [lint, ci-skip]
-    if: ${{ needs.ci-skip.outputs.skip == 'false' }}
+    if: needs.ci-skip.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
     steps:
@@ -116,7 +119,7 @@ jobs:
   scan-2:
     name: OSSAR Scan
     needs: [lint, ci-skip]
-    if: ${{ needs.ci-skip.outputs.skip == 'false' }}
+    if: needs.ci-skip.outputs.skip == 'false'
     runs-on: windows-latest
 
     steps:
@@ -127,7 +130,7 @@ jobs:
 
     - name: Checkout PR Head
       run: git checkout HEAD^2
-      if: ${{ github.event_name == 'pull_request' }}
+      if: github.event_name == 'pull_request'
 
     - name: Run OSSAR
       uses: github/ossar-action@v1
