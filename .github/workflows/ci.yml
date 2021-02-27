@@ -75,12 +75,12 @@ jobs:
           exit 0
 
       - name: Reformat Code
-        if: env.should_format
+        if: env.should_format == 1
         run: |
           black .
 
       - name: Commit New Code (PR)
-        if: env.should_format && github.event_name == 'pull_request'
+        if: env.should_format == 1 && github.event_name == 'pull_request'
         run: |
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
@@ -89,8 +89,8 @@ jobs:
           git commit -am "fixup: Reformat Code with Black"
           git push
 
-      - name: Commit New Core (Push)
-        if: env.should_format && github.event_name == 'push'
+      - name: Commit New Code (Push)
+        if: env.should_format == 1 && github.event_name == 'push'
         run: |
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
