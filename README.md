@@ -11,3 +11,5 @@ The (personally) recommended deployment is using:
 - Cloudflare's [API Shield](https://developers.cloudflare.com/firewall/cf-firewall-rules/api-shield).
 - A reverse proxy, such as [Nginx](https://nginx.com).
 - [Gunicorn](https://gunicorn.org) at the core, with the passive restart option after X number of requests to avoid any possible memory leaks.
+
+Nginx and Gunicorn is included in the Sleigh Docker container: ghcr.io/andre4ik3/sleigh
