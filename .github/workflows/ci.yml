@@ -5,9 +5,30 @@ on:
   pull_request:
 
 jobs:
+  ci-skip:
+    name: CI Skip Test
+    runs-on: ubuntu-latest
+
+    outputs:
+      skip: ${{ steps.ci-skip-step.outputs.ci-skip }}
+      skip-not: ${{ steps.ci-skip-step.outputs.ci-skip-not }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Check CI Skip Status
+        id: ci-skip-step
+        uses: mstachniuk/ci-skip@master
+
   lint:
     name: Flake8 Lint
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
     - name: Checkout Repository
@@ -15,6 +36,8 @@ jobs:
 
     - name: Setup Python
       uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
     - name: Install Flake8
       run: |
@@ -52,6 +75,10 @@ jobs:
         if: failure()
         run: |
           black .
+
+      - name: Commit New Code (PR)
+        if: failure() && github.event_name == 'pull_request'
+        run: |
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
@@ -59,13 +86,21 @@ jobs:
           git commit -am "fixup: Reformat Code with Black"
           git push
 
+      - name: Commit New Core (Push)
+        if: failure() && github.event_name == 'push'
+        run: |
+          git config --global user.name 'blackbot'
+          git config --global user.email 'andre4ik3@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git checkout $GITHUB_HEAD_REF
+          git commit -am "[ci-skip] Reformat Code with Black"
+          git push
+
   scan-1:
     name: GraphQL Scan
-    needs: lint
+    needs: [lint, ci-skip]
+    if: ${{ needs.init.outputs.skip == 'false' }}
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
 
     steps:
     - name: Checkout Repository
@@ -81,7 +116,8 @@ jobs:
 
   scan-2:
     name: OSSAR Scan
-    needs: lint
+    needs: [lint, ci-skip]
+    if: ${{ needs.init.outputs.skip == 'false' }}
     runs-on: windows-latest
 
     steps:
