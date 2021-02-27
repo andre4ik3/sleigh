@@ -12,4 +12,4 @@ The (personally) recommended deployment is using:
 - A reverse proxy, such as [Nginx](https://nginx.com).
 - [Gunicorn](https://gunicorn.org) at the core, with the passive restart option after X number of requests to avoid any possible memory leaks.
 
-Nginx and Gunicorn is included in the [Sleigh Docker container](https://github.com/users/andre4ik3/packages/container/package/sleigh)
+Nginx and Gunicorn are included in the [Sleigh Docker container](https://github.com/users/andre4ik3/packages/container/package/sleigh)
