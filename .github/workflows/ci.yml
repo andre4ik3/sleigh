@@ -89,7 +89,8 @@ jobs:
           git config --global user.email 'andre4ik3@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git checkout $GITHUB_HEAD_REF
-          git commit -am "fixup: Reformat Code with Black"
+          git pull
+          git commit -am "[ci-skip] Reformat Code with Black"
           git push
 
       - name: Commit New Code (Push)
@@ -98,6 +99,7 @@ jobs:
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git pull
           git commit -am "[ci-skip] Reformat Code with Black"
           git push origin HEAD:$GITHUB_REF
 
@@ -178,7 +180,7 @@ jobs:
   pypi-publish:
     name: PyPI Publish Package
     needs: [scan-1, scan-2, python-test, format]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && 
     runs-on: ubuntu-latest
 
     steps:
