@@ -37,10 +37,11 @@ async def purge(app, machine_id: str) -> None:
 
 async def check(request, machine_id: str) -> bool:
     """Checks that browser and stored cookies match."""
-    saved_cookie = request.app["cookies"].get(machine_id, {}).get("cookie", None)
+    cookies = request.app.get("cookies", {})
+    saved_cookie = cookies.get(machine_id, {}).get("cookie", None)
     browser_cookie = request.cookies.get("machine", None)
 
-    if saved_cookie == browser_cookie:
+    if saved_cookie == browser_cookie and saved_cookie != None:
         return True
     else:
         return False

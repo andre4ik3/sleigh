@@ -58,3 +58,45 @@ class Preflight:
                 dump(config, fp)
 
         return expected_config
+
+
+class Event:
+    def __init__(self):
+        self._data = self._generate()
+
+    def _generate(self):
+        return {
+            "_fake_key_that_should_be_saved": secrets.token_urlsafe(),
+            "file_name": secrets.token_urlsafe(),
+            "file_path": secrets.token_urlsafe(),
+            "file_bundle_name": secrets.token_urlsafe(),
+            "file_bundle_path": secrets.token_urlsafe(),
+            "file_bundle_version": "1.0.0.1.2.3.4.5",
+            "file_bundle_version_string": "1.0.0",
+            "file_bundle_id": secrets.token_urlsafe(),
+            "parent_name": secrets.token_urlsafe(),
+            "logged_in_users": [
+                secrets.token_urlsafe(),
+                secrets.token_urlsafe(),
+                secrets.token_urlsafe(),
+            ],
+            "quarantine_timestamps": secrets.randbelow(200000000000),
+            "signing_chain": {
+                "cn": secrets.token_urlsafe(),
+                "org": secrets.token_urlsafe(),
+                "ou": secrets.token_urlsafe(),
+                "valid_until": secrets.randbelow(200000000000),
+                "valid_from": secrets.randbelow(200000000000),
+                "sha256": secrets.token_urlsafe(),
+            },
+            "executing_user": secrets.token_urlsafe(),
+            "ppid": secrets.randbelow(50000),
+            "pid": secrets.randbelow(3000),
+            "decision": secrets.choice(["ALLOW", "BLOCK"]),
+            "execution_time": secrets.randbelow(200000000000),
+            "current_sessions": [
+                secrets.token_urlsafe(),
+                secrets.token_urlsafe(),
+                "console",
+            ],
+        }
