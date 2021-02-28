@@ -5,20 +5,18 @@ info:
 servers:
   - url: 'http://localhost:8443'
 paths:
-  /user:
-    get:
-      summary: 'Sample endpoint: Returns details about a particular user'
-      operationId: listUser
-      tags:
-        - user
+  /preflight/{machine_id}:
+    post:
+      summary: 'Return a preflight configuration and a cookie for a machine ID.'
+      operationId: getPreflight
+      tags: []
       parameters:
-        - name: id
-          in: query
-          description: ID of the user
+        - name: machine_id
+          in: path
+          description: Machine ID to identify a particular machine.
           required: true
           schema:
-            type: integer
-            format: int32
+            type: string
       responses:
         '200':
           description: 'Sample response: Details about a user by ID'
