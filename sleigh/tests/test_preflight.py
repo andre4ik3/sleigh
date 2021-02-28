@@ -52,7 +52,7 @@ async def test_valid(cli):
     for i in range(0, 1000):
         preflight = random.Preflight()
         expected_result = preflight.make_configs("config/preflight")
-        resp = await cli.post("/preflight/test_machine_id", data=dumps(preflight._data))
+        resp = await cli.post(f"/preflight/{preflight._data['machine_id']}", data=dumps(preflight._data))
 
         assert resp.status == 200
         assert await resp.json(loads=loads) == expected_result
