@@ -1,4 +1,14 @@
-# Sleigh
+<h1 align="center">🛷 Sleigh 🛷</h1>
+<p align="center">A Santa Synchronization Server</p>
+
+<p align="center">
+  <a href="https://github.com/andre4ik3/sleigh/actions/workflows/ci.yml">
+    <img src="https://github.com/andre4ik3/sleigh/actions/workflows/ci.yml/badge.svg?branch=community" />
+  </a>
+  <a href="https://github.com/psf/black">
+    <img src="https://img.shields.io/badge/code%20style-black-black" />
+  </a>
+</p>
 
 Sleigh is a simple [Santa](https://github.com/google/santa) server that allows
 you to remotely synchronize Santa rulesets across machines.
