@@ -36,7 +36,9 @@ async def test_invalid_method(cli):
 async def test_invalid_body_format(cli):
     for i in range(0, 1000):
         preflight = random.Preflight()
-        resp = await cli.post(f"/eventupload/{preflight._data['machine_id']}", data="testing")
+        resp = await cli.post(
+            f"/eventupload/{preflight._data['machine_id']}", data="testing"
+        )
         assert resp.status == 400
         assert resp.cookies == {}
 
@@ -44,7 +46,9 @@ async def test_invalid_body_format(cli):
 async def test_invalid_body_data(cli):
     for i in range(0, 1000):
         preflight = random.Preflight()
-        resp = await cli.post(f"/eventupload/{preflight._data['machine_id']}", data="{}")
+        resp = await cli.post(
+            f"/eventupload/{preflight._data['machine_id']}", data="{}"
+        )
         assert resp.status == 400
         assert resp.cookies == {}
 

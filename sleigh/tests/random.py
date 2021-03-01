@@ -110,7 +110,15 @@ class Rule:
     def _generate(self):
         return {
             "rule_type": secrets.choice(["BINARY", "CERTIFICATE"]),
-            "policy": secrets.choice(["ALLOWLIST", "BLOCKLIST", "SILENT_BLOCKLIST", "REMOVE", "ALLOWLIST_COMPILER"]),
+            "policy": secrets.choice(
+                [
+                    "ALLOWLIST",
+                    "BLOCKLIST",
+                    "SILENT_BLOCKLIST",
+                    "REMOVE",
+                    "ALLOWLIST_COMPILER",
+                ]
+            ),
             "sha256": sha256(secrets.token_urlsafe()),
-            "custom_msg": secrets.token_urlsafe()
+            "custom_msg": secrets.token_urlsafe(),
         }
