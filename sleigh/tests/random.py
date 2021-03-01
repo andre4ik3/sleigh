@@ -1,4 +1,5 @@
 from ujson import load, dump
+from hashlib import sha256
 from pathlib import Path
 import secrets
 
@@ -99,4 +100,17 @@ class Event:
                 secrets.token_urlsafe(),
                 "console",
             ],
+        }
+
+
+class Rule:
+    def __init__(self):
+        self._data = self._generate()
+
+    def _generate(self):
+        return {
+            "rule_type": secrets.choice(["BINARY", "CERTIFICATE"]),
+            "policy": secrets.choice(["ALLOWLIST", "BLOCKLIST", "SILENT_BLOCKLIST", "REMOVE", "ALLOWLIST_COMPILER"]),
+            "sha256": sha256(secrets.token_urlsafe()),
+            "custom_msg": secrets.token_urlsafe()
         }
