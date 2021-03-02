@@ -131,7 +131,7 @@ jobs:
 
   scan-2:
     name: OSSAR Scan
-    needs: [lint, ci-skip]
+    needs: [lint, init]
     if: needs.ci-skip.outputs.skip == 'false'
     runs-on: windows-latest
 
