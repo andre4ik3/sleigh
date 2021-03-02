@@ -105,7 +105,7 @@ jobs:
   scan-1:
     name: GraphQL Scan
     needs: [lint, init]
-    if: needs.ci-skip.outputs.skip == 'false'
+    if: needs.init.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
     steps:
@@ -124,7 +124,7 @@ jobs:
   scan-2:
     name: OSSAR Scan
     needs: [lint, init]
-    if: needs.ci-skip.outputs.skip == 'false'
+    if: needs.init.outputs.skip == 'false'
     runs-on: windows-latest
 
     steps:
@@ -149,7 +149,7 @@ jobs:
   python-test:
     name: Python Tests
     needs: [lint, init]
-    if: needs.ci-skip.outputs.skip == 'false'
+    if: needs.init.outputs.skip == 'false'
     runs-on: ${{ matrix.os }}
 
     strategy:
