@@ -19,14 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cancel Previous Workflows
-        uses: potiuk/cancel-workflow-runs@v3
-        with:
-          cancelMode: allDuplicates
-          cancelFutureDuplicates: false
-          token: ${{ secrets.GITHUB_TOKEN }}
-          workflowFileName: ci.yml
-
       - name: Check CI Skip Status
         id: ci-skip-step
         uses: mstachniuk/ci-skip@master
