@@ -173,8 +173,17 @@ jobs:
         python -m pip install -U aiohttp ujson pytest pytest-aiohttp aiofiles
 
     - name: Run Tests
-      run: |
-        pytest sleigh/tests
+      run: pytest sleigh/tests
+
+    - name: Build Wheel
+      run: python sleigh/setup.py bdist_wheel
+
+    - name: Upload Wheel
+      uses: actions/upload-artifact@v2
+      with:
+        name: Wheel (${{ matrix.python-version }})
+        path: dist/*.whl
+        if-no-files-found: error
 
   pypi-publish:
     name: PyPI Publish Package
