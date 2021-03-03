@@ -181,7 +181,7 @@ jobs:
     - name: Upload Wheel
       uses: actions/upload-artifact@v2
       with:
-        name: Wheel (${{ matrix.python-version }})
+        name: Wheel (${{ matrix.python-version }}, ${{ matrix.os }})
         path: dist/*.whl
         if-no-files-found: error
 
