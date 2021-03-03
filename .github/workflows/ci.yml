@@ -182,6 +182,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
+    environment:
+      name: production
+      url: https://pypi.org/sleigh-internal
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
@@ -223,6 +227,10 @@ jobs:
     needs: [docker-test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://github.com/users/andre4ik3/packages/container/package/sleigh
 
     steps:
       - name: Checkout Repository
