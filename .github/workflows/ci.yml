@@ -48,10 +48,12 @@ jobs:
 
     - name: Lint Code
       run: |
+        echo "::group::Python ${{ matrix.python-version }}"
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --select=E9,F63,F7,F82 --format='::error file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --format='::warning file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
+        echo "::endgroup::"
 
   format:
     name: Black Format
@@ -174,16 +176,6 @@ jobs:
 
     - name: Run Tests
       run: pytest sleigh/tests
-
-    - name: Build Wheel
-      run: python sleigh/setup.py bdist_wheel
-
-    - name: Upload Wheel
-      uses: actions/upload-artifact@v2
-      with:
-        name: Wheel (${{ matrix.python-version }}, ${{ matrix.os }})
-        path: dist/*.whl
-        if-no-files-found: error
 
   pypi-publish:
     name: PyPI Publish Package
