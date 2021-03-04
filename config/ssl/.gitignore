@@ -1,0 +1,3 @@
+# This directory should be here for CI and / or Docker.
+# But it should always be empty.
+!.gitignore

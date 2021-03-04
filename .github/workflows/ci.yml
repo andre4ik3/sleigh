@@ -72,10 +72,7 @@ jobs:
           python -m pip install -U black
 
       - name: Check Format
-        run: |
-          black --check .
-          echo "should_format=$?" >> $GITHUB_ENV
-          exit 0
+        run: /bin/bash -c 'black --check .; echo "should_format=$?" >> $GITHUB_ENV; exit 0'
 
       - name: Reformat Code
         if: env.should_format == 1
@@ -179,11 +176,39 @@ jobs:
     name: Docker Tests
     needs: [lint, init]
     if: needs.init.outputs.skip == 'false'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
+
+    - name: Install Docker
+      if: matrix.os == 'macos-latets'
+      run: |
+        brew install --cask docker
+        xattr -d -r com.apple.quarantine /Applications/Docker.app
+
+        # Docker Setup
+        sudo /bin/cp /Applications/Docker.app/Contents/Library/LaunchServices/com.docker.vmnetd /Library/PrivilegedHelperTools
+        sudo /bin/cp /Applications/Docker.app/Contents/Resources/com.docker.vmnetd.plist /Library/LaunchDaemons/
+        sudo /bin/chmod 544 /Library/PrivilegedHelperTools/com.docker.vmnetd
+        sudo /bin/chmod 644 /Library/LaunchDaemons/com.docker.vmnetd.plist
+        sudo /bin/launchctl load /Library/LaunchDaemons/com.docker.vmnetd.plist
+        open -g -a Docker.app
+
+        # Wait for Docker to start
+        i=0
+        while ! docker system info &>/dev/null; do
+          (( i++ == 0 )) && printf %s '-- Waiting for Docker to finish starting up...' || printf '.'
+          sleep 1
+        done
+        (( i )) && printf '\n'
+
+        echo "-- Docker is ready."
 
     - name: Build Image
       run: docker-compose --file docker-compose.test.yml build
