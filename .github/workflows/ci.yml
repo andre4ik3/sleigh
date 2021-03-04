@@ -53,8 +53,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --format='::warning file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
         echo "::endgroup::"
         echo "::group::Pylint - Python ${{ matrix.python-version }}"
-        pylint main.py sleigh --errors-only --msg-template='::error file={path},line={line},col={column},::{msg}'
-        pylint main.py sleigh --exit-zero --msg-template='::warning file={path},line={line},col={column},::{msg}'
+        pylint sleigh --errors-only --msg-template='::error file={path},line={line},col={column},::{msg}'
+        pylint sleigh --exit-zero --msg-template='::warning file={path},line={line},col={column},::{msg}'
         echo "::endgroup::"
 
   format:
