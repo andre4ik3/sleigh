@@ -24,7 +24,7 @@ jobs:
         uses: mstachniuk/ci-skip@master
 
   lint:
-    name: Lint Code
+    name: Lint Code with Flake8
     runs-on: ubuntu-latest
 
     strategy:
@@ -44,17 +44,13 @@ jobs:
     - name: Install Flake8 & Pylint
       run: |
         python -m pip install -U pip wheel
-        python -m pip install -U flake8 pylint -r requirements.txt
+        python -m pip install -U flake8 -r requirements.txt
 
     - name: Lint Code
       run: |
         echo "::group::Flake8 - Python ${{ matrix.python-version }}"
         flake8 . --count --select=E9,F63,F7,F82 --format='::error file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --format='::warning file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
-        echo "::endgroup::"
-        echo "::group::Pylint - Python ${{ matrix.python-version }}"
-        pylint sleigh --errors-only --msg-template='::error file={path},line={line},col={column},::{msg}'
-        pylint sleigh --exit-zero --msg-template='::warning file={path},line={line},col={column},::{msg}'
         echo "::endgroup::"
 
   format:
