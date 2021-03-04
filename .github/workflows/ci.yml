@@ -189,7 +189,7 @@ jobs:
       run: docker-compose --file docker-compose.test.yml build
 
     - name: Run Tests
-      docker-compose --file docker-compose.test.yml run sut
+      run: docker-compose --file docker-compose.test.yml run sut
 
   confirmation:
     name: Confirm Deployment
