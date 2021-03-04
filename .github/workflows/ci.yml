@@ -182,14 +182,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: Build Image
-        run: docker-compose --file docker-compose.test.yml build
+    - name: Build Image
+      run: docker-compose --file docker-compose.test.yml build
 
-      - name: Run Tests
-        docker-compose --file docker-compose.test.yml run sut
+    - name: Run Tests
+      docker-compose --file docker-compose.test.yml run sut
 
   confirmation:
     name: Confirm Deployment
