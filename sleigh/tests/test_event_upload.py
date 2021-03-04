@@ -2,14 +2,13 @@ from ujson import dumps, loads
 from datetime import datetime
 from pathlib import Path
 from aiohttp import web
-from time import sleep
 from .. import routes
 from . import random
 import pytest
 
-################################################################################
-## App Generator                                                               #
-################################################################################
+###############################################################################
+# App Generator                                                               #
+###############################################################################
 
 
 @pytest.fixture
@@ -20,9 +19,9 @@ def cli(loop, aiohttp_client):
     return loop.run_until_complete(aiohttp_client(app))
 
 
-################################################################################
-## Tests                                                                       #
-################################################################################
+###############################################################################
+# Tests                                                                       #
+###############################################################################
 
 
 async def test_invalid_method(cli):
@@ -59,13 +58,16 @@ async def test_valid(cli):
         preflight = random.Preflight()
         pf_expected_result = preflight.make_configs("config/preflight")
         pf_resp = await cli.post(
-            f"/preflight/{preflight._data['machine_id']}", data=dumps(preflight._data)
+            f"/preflight/{preflight._data['machine_id']}",
+            data=dumps(preflight._data)
         )
+
+        preflight.cleanup()
 
         assert pf_resp.status == 200
         assert await pf_resp.json(loads=loads) == pf_expected_result
         cookie = pf_resp.cookies["machine"]
-        assert cookie != None
+        assert cookie is not None
 
         # Now the actual Event Upload
         event = random.Event()
@@ -76,7 +78,8 @@ async def test_valid(cli):
         day = date.strftime("%d")
 
         path = Path(
-            f"config/events/{year}/{month}/{day}/{preflight._data['machine_id']}.json"
+            f"config/events/{year}/{month}/{day}/"
+            + preflight._data['machine_id'] + ".json"
         ).resolve()
 
         resp = await cli.post(

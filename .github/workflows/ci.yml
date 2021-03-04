@@ -257,8 +257,6 @@ jobs:
     - name: Upload Distribution
       run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
 
-  
-
   docker-push:
     name: Docker Push Container
     needs: confirmation

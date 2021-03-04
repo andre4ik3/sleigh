@@ -1,4 +1,4 @@
-from ujson import loads, dumps
+from ujson import load
 from sleigh import routes
 from pathlib import Path
 from aiohttp import web
@@ -10,8 +10,8 @@ if not Path("config").resolve().is_dir():
     print("Error: https://github.com/andre4ik3/sleigh")
     sys.exit(1)
 
-with open("config/server.json") as file:
-    config = loads(file.read())
+with open("config/server.json") as fp:
+    config = load(fp)
 
 doRuleDownload = config.get("doRuleDownload", True)
 doEventUpload = config.get("doEventUpload", True)

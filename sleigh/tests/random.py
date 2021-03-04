@@ -12,6 +12,7 @@ with open(Path("sleigh/tests/serials.json"), "r") as fp:
 class Preflight:
     def __init__(self):
         self._data = self._generate_request()
+        self._paths = []
 
     def _generate_request(self):
         return {
@@ -56,9 +57,15 @@ class Preflight:
             with open(filepath, "w") as fp:
                 config = self._generate_config()
                 config.update(expected_config)
+                self._paths.append(filepath)
                 dump(config, fp)
 
         return expected_config
+
+    def cleanup(self):
+        for i in range(len(self._paths)):
+            filepath = self._paths.pop(0)
+            filepath.unlink()
 
 
 class Event:
@@ -105,7 +112,8 @@ class Event:
 
 class Rule:
     def __init__(self):
-        self._data = self._generate()
+        self._preflight = Preflight()
+        self._paths = []
 
     def _generate(self):
         return {
@@ -119,6 +127,29 @@ class Rule:
                     "ALLOWLIST_COMPILER",
                 ]
             ),
-            "sha256": sha256(secrets.token_urlsafe()),
+            "sha256": sha256(secrets.token_bytes()).hexdigest(),
             "custom_msg": secrets.token_urlsafe(),
         }
+
+    def make_rules(self, path: str) -> dict:
+        path = Path(path).resolve()
+        path.mkdir(parents=True, exist_ok=True)
+        expected_rules = [{"_comment": "nothing here yet"}]
+
+        rules = []
+
+        for i in range(1):
+            rule = self._generate()
+            name = secrets.token_urlsafe()
+            filepath = Path(path / f"{name}.json")
+
+            with open(filepath, "w") as fp:
+                expected_rules.append(rule)
+                dump(rule, fp)
+
+        return {"rules": expected_rules}
+
+    def cleanup(self):
+        for i in range(len(self._paths)):
+            filepath = self._paths.pop(0)
+            filepath.unlink()
