@@ -17,7 +17,9 @@ async def preflight(request):
         mode = body["client_mode"]
 
     except (ValueError, KeyError):
-        return web.json_response({"error": "invalid_body"}, dumps=dumps, status=400)
+        return web.json_response(
+            {"error": "invalid_body"}, dumps=dumps, status=400
+        )
 
     config = {}
     paths = [
@@ -34,7 +36,9 @@ async def preflight(request):
                 config.update(loads(await file.read()))
 
     if config == {}:
-        return web.json_response({"error": "not_found"}, dumps=dumps, status=404)
+        return web.json_response(
+            {"error": "not_found"}, dumps=dumps, status=404
+        )
 
     set_cookie = await cookie.set(request, machine_id)
 
