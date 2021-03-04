@@ -61,7 +61,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -78,24 +81,15 @@ jobs:
         if: env.should_format == 1
         run: black .
 
-      - name: Commit New Code (PR)
-        if: env.should_format == 1 && github.event_name == 'pull_request'
+      - name: Commit New Code
+        if: env.should_format == 1
         run: |
           git config --global user.name 'blackbot'
           git config --global user.email 'andre4ik3@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git checkout $GITHUB_HEAD_REF
+          git stash
           git pull
-          git commit -am "[ci-skip] Reformat Code with Black"
-          git push
-
-      - name: Commit New Code (Push)
-        if: env.should_format == 1 && github.event_name == 'push'
-        run: |
-          git config --global user.name 'blackbot'
-          git config --global user.email 'andre4ik3@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git pull
+          git stash pop
           git commit -am "[ci-skip] Reformat Code with Black"
           git push origin HEAD:$GITHUB_REF
 
@@ -181,13 +175,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
+      fail-fast: false
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
     - name: Install Docker
-      if: matrix.os == 'macos-latets'
+      if: matrix.os == 'macos-latest'
       run: |
         brew install --cask docker
         xattr -d -r com.apple.quarantine /Applications/Docker.app
