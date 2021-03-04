@@ -11,9 +11,7 @@ async def rule_download(request):
     cookie_valid = await cookie.check(request, machine_id)
 
     if not cookie_valid:
-        return web.json_response(
-            {"error": "no_cookie"}, dumps=dumps, status=400
-        )
+        return web.json_response({"error": "no_cookie"}, dumps=dumps, status=400)
 
     saved_cookie = await cookie.get(request, machine_id)
     serial = saved_cookie["data"]["serial_num"]
