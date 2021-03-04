@@ -58,8 +58,7 @@ async def test_valid(cli):
         preflight = random.Preflight()
         pf_expected_result = preflight.make_configs("config/preflight")
         pf_resp = await cli.post(
-            f"/preflight/{preflight._data['machine_id']}",
-            data=dumps(preflight._data)
+            f"/preflight/{preflight._data['machine_id']}", data=dumps(preflight._data)
         )
 
         preflight.cleanup()
@@ -79,7 +78,8 @@ async def test_valid(cli):
 
         path = Path(
             f"config/events/{year}/{month}/{day}/"
-            + preflight._data['machine_id'] + ".json"
+            + preflight._data["machine_id"]
+            + ".json"
         ).resolve()
 
         resp = await cli.post(

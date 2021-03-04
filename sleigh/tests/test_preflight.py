@@ -42,10 +42,7 @@ async def test_invalid_body_format(cli):
 async def test_invalid_body_data(cli):
     for i in range(0, 1000):
         preflight = random.Preflight()
-        resp = await cli.post(
-            f"/preflight/{preflight._data['machine_id']}",
-            data="{}"
-        )
+        resp = await cli.post(f"/preflight/{preflight._data['machine_id']}", data="{}")
         assert resp.status == 400
         assert resp.cookies == {}
 
@@ -55,8 +52,7 @@ async def test_valid(cli):
         preflight = random.Preflight()
         expected_result = preflight.make_configs("config/preflight")
         resp = await cli.post(
-            f"/preflight/{preflight._data['machine_id']}",
-            data=dumps(preflight._data)
+            f"/preflight/{preflight._data['machine_id']}", data=dumps(preflight._data)
         )
 
         preflight.cleanup()
