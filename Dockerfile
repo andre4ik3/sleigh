@@ -9,4 +9,4 @@ RUN apk add --no-cache alpine-sdk libffi-dev nginx
 RUN pip install --no-cache-dir -U pip -r requirements.txt
 
 EXPOSE 8443
-ENTRYPOINT ["extra/start.sh"]
+CMD ["extra/start.sh"]
