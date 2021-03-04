@@ -13,14 +13,10 @@ async def event_upload(request):
     try:
         data = await request.json(loads=loads)
     except ValueError:
-        return web.json_response(
-            {"error": "invalid_body"}, dumps=dumps, status=400
-        )
+        return web.json_response({"error": "invalid_body"}, dumps=dumps, status=400)
 
     if not cookie_valid:
-        return web.json_response(
-            {"error": "no_cookie"}, dumps=dumps, status=400
-        )
+        return web.json_response({"error": "no_cookie"}, dumps=dumps, status=400)
 
     date = datetime.now()
     year = date.strftime("%Y")
