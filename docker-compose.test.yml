@@ -1,0 +1,6 @@
+sut:
+  build: .
+  command: bash -c "
+    pip3 install pytest pytest-asyncio pytest-aiohttp
+    pytest sleigh/tests
+    "

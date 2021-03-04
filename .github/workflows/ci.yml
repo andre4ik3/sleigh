@@ -175,10 +175,44 @@ jobs:
     - name: Run Tests
       run: pytest sleigh/tests
 
+  docker-test:
+    name: Docker Tests
+    needs: [lint, init]
+    if: needs.init.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Build Image
+        run: docker-compose --file docker-compose.test.yml build
+
+      - name: Run Tests
+        docker-compose --file docker-compose.test.yml run sut
+
+  confirmation:
+    name: Confirm Deployment
+    needs: [scan-1, scan-2, python-test, docker-test, format]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Upload Source Archive
+      uses: actions/upload-artifact@v2
+      with:
+        name: Source Archive
+        path: .
+
   pypi-publish:
     name: PyPI Publish Package
-    needs: [scan-1, scan-2, python-test, format]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: confirmation
     runs-on: ubuntu-latest
 
     environment:
@@ -203,28 +237,11 @@ jobs:
     - name: Upload Distribution
       run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
 
-  docker-test:
-    name: Docker Tests
-    needs: [scan-1, scan-2, python-test, format]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Run Tests
-        run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
-            docker build . --file Dockerfile
-          fi
+  
 
   docker-push:
     name: Docker Push Container
-    needs: [docker-test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: confirmation
     runs-on: ubuntu-latest
 
     environment:
