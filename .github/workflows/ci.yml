@@ -86,7 +86,7 @@ jobs:
 
   scan-1:
     name: GraphQL Scan
-    needs: [format, init]
+    needs: [lint, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
@@ -105,7 +105,7 @@ jobs:
 
   scan-2:
     name: OSSAR Scan
-    needs: [format, init]
+    needs: [lint, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: windows-latest
 
@@ -130,7 +130,7 @@ jobs:
 
   scan-3:
     name: Upload Code Coverage
-    needs: [format, init]
+    needs: [lint, init]
     runs-on: ubuntu-latest
 
     steps:
@@ -142,7 +142,7 @@ jobs:
 
   python-test:
     name: Python Tests
-    needs: [format, init]
+    needs: [lint, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: ${{ matrix.os }}
 
@@ -171,7 +171,7 @@ jobs:
 
   docker-test:
     name: Docker Tests
-    needs: [format, init]
+    needs: [lint, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
@@ -187,7 +187,7 @@ jobs:
 
   pypi-test:
     name: Publish to TestPyPI
-    needs: [scan-1, scan-2, scan-3, python-test, docker-test]
+    needs: [format, scan-1, scan-2, scan-3, python-test, docker-test]
     runs-on: ubuntu-latest
 
     environment:
@@ -202,15 +202,13 @@ jobs:
       uses: actions/setup-python@v2
 
     - name: Install Build Dependencies
-      run: |
-        python -m pip install -U pip wheel pipenv
-        pipenv install --skip-lock build twine
+      run: python -m pip install -U pip wheel build twine
 
     - name: Build Distribution
-      run: cd sleigh; pipenv run python -m build
+      run: cd sleigh; python -m build
 
     - name: Upload Distribution
-      run: pipenv run python -m twine upload --repository testpypi --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
+      run: python -m twine upload --repository testpypi --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
 
   pypi-publish:
     name: Publish to PyPI
@@ -229,15 +227,13 @@ jobs:
       uses: actions/setup-python@v2
 
     - name: Install Build Dependencies
-      run: |
-        python -m pip install -U pip wheel pipenv
-        pipenv install --skip-lock build twine
+      run: python -m pip install -U pip wheel build twine
 
     - name: Build Distribution
-      run: cd sleigh; pipenv run python -m build
+      run: cd sleigh; python -m build
 
     - name: Upload Distribution
-      run: pipenv run python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
+      run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
 
   docker-push:
     name: Docker Push Container
