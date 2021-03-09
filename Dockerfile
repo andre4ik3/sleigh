@@ -11,4 +11,3 @@ RUN pipenv install
 
 EXPOSE 8443
 CMD ["extra/start.sh"]
-

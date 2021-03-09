@@ -1,6 +1,6 @@
 sut:
   build: .
   command: /bin/sh -c "
-    pip3 install pytest pytest-asyncio pytest-aiohttp;
-    pytest sleigh/tests
+    pipenv install pytest pytest-asyncio pytest-aiohttp;
+    pipenv run pytest sleigh/tests
     "

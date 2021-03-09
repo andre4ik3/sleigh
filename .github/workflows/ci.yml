@@ -208,7 +208,7 @@ jobs:
         pipenv install
 
     - name: Build Distribution
-      run: cd sleigh; python -m build
+      run: cd sleigh; pipenv run python -m build
 
     - name: Upload Distribution
       run: python -m twine upload --repository testpypi --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
@@ -236,7 +236,7 @@ jobs:
         pipenv install
 
     - name: Build Distribution
-      run: cd sleigh; python -m build
+      run: cd sleigh; pipenv run python -m build
 
     - name: Upload Distribution
       run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*

@@ -13,7 +13,7 @@ elif [[ ! -d /run/nginx ]]; then
   mkdir /run/nginx
 fi
 nginx -c $PWD/extra/nginx.conf
-gunicorn main:app \
+pipenv run gunicorn main:app \
   --bind 127.0.0.1:8080 \
   --keep-alive 5 \
   --workers 6 \
