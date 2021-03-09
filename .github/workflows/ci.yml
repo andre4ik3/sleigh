@@ -47,7 +47,9 @@ jobs:
 
   codecov:
     name: Upload Code Coverage
+    needs: lint
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
