@@ -211,32 +211,40 @@ jobs:
     - name: Run Tests
       run: docker-compose --file docker-compose.test.yml run sut
 
-  confirmation:
-    name: Confirm Deployment
+  pypi-test:
+    name: PyPI Publish Package (Test)
     needs: [scan-1, scan-2, python-test, docker-test, format]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     environment:
-      name: production
+      name: Python Package Index - Testing
+      url: https://test.pypi.org/sleigh-internal
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Upload Source Archive
-      uses: actions/upload-artifact@v2
-      with:
-        name: Source Archive
-        path: .
+    - name: Setup Python
+      uses: actions/setup-python@v2
+
+    - name: Install Build Dependencies
+      run: |
+        python -m pip install -U pip wheel
+        python -m pip install -U build twine -r requirements.txt
+
+    - name: Build Distribution
+      run: cd sleigh; python -m build
+
+    - name: Upload Distribution
+      run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
 
   pypi-publish:
-    name: PyPI Publish Package
-    needs: confirmation
+    name: PyPI Publish Package (Production)
+    needs: pypi-test
     runs-on: ubuntu-latest
 
     environment:
-      name: production
+      name: Python Package Index - Production
       url: https://pypi.org/sleigh-internal
 
     steps:
@@ -259,7 +267,7 @@ jobs:
 
   docker-push:
     name: Docker Push Container
-    needs: confirmation
+    needs: pypi-test
     runs-on: ubuntu-latest
 
     environment:
@@ -298,10 +306,4 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
       - name: Push Image to GitHub Packages
-        run: docker push $IMAGE_ID:$VERSION
-
-      - name: Login to Docker
-        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u andre4ik3 --password-stdin
-  
-      - name: Push Image to Docker
         run: docker push $IMAGE_ID:$VERSION
