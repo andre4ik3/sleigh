@@ -208,7 +208,10 @@ jobs:
       run: cd sleigh; python -m build
 
     - name: Upload Distribution
-      run: python -m twine upload --repository testpypi --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
+      run: python -m twine upload --repository testpypi sleigh/dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ env.PYPI_TOKEN }}
 
   pypi-publish:
     name: Publish to PyPI
@@ -233,7 +236,10 @@ jobs:
       run: cd sleigh; python -m build
 
     - name: Upload Distribution
-      run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
+      run: python -m twine upload sleigh/dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ env.PYPI_TOKEN }}
 
   docker-push:
     name: Docker Push Container
