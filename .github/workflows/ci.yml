@@ -129,7 +129,7 @@ jobs:
 
   python-test:
     name: Python Tests
-    needs: [lint, init]
+    needs: [format, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: ${{ matrix.os }}
 
@@ -158,7 +158,7 @@ jobs:
 
   docker-test:
     name: Docker Tests
-    needs: [lint, init]
+    needs: [format, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
@@ -173,12 +173,12 @@ jobs:
       run: docker-compose --file docker-compose.test.yml run sut
 
   pypi-test:
-    name: PyPI Publish Package (Test)
-    needs: [scan-1, scan-2, python-test, docker-test, format]
+    name: Publish to TestPyPI
+    needs: [scan-1, scan-2, python-test, docker-test]
     runs-on: ubuntu-latest
 
     environment:
-      name: Python Package Index - Testing
+      name: test.pypi.org
       url: https://test.pypi.org/sleigh-internal
 
     steps:
@@ -197,15 +197,15 @@ jobs:
       run: cd sleigh; python -m build
 
     - name: Upload Distribution
-      run: python -m twine upload --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
+      run: python -m twine upload --repository testpypi --username __token__ --password ${{ env.PYPI_TOKEN }} sleigh/dist/*
 
   pypi-publish:
-    name: PyPI Publish Package (Production)
+    name: Publish to PyPI
     needs: pypi-test
     runs-on: ubuntu-latest
 
     environment:
-      name: Python Package Index - Production
+      name: pypi.org
       url: https://pypi.org/sleigh-internal
 
     steps:
@@ -232,8 +232,8 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: GitHub Packages
-      url: https://github.com/users/andre4ik3/packages/container/package/sleigh
+      name: github.com
+      url: https://github.com/andre4ik3/sleigh/packages/642451
 
     steps:
       - name: Checkout Repository
