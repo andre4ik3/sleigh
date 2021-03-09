@@ -208,7 +208,7 @@ jobs:
       run: cd sleigh; python -m build
 
     - name: Upload Distribution
-      run: python -m twine upload --repository testpypi sleigh/dist/*
+      run: python -m twine upload sleigh/dist/* --repository testpypi
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ env.PYPI_TOKEN }}
