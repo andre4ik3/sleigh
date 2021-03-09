@@ -45,18 +45,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --format='::warning file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
         echo "::endgroup::"
 
-  codecov:
-    name: Upload Code Coverage
-    needs: init
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Upload Code Coverage
-      uses: codecov/codecov-action@v1
-
   format:
     name: Black Format
     needs: lint
@@ -140,6 +128,18 @@ jobs:
       with:
         sarif_file: ${{ steps.ossar.outputs.sarifFile }}
 
+  scan-3:
+    name: Upload Code Coverage
+    needs: [format, init]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Upload Code Coverage
+      uses: codecov/codecov-action@v1
+
   python-test:
     name: Python Tests
     needs: [format, init]
@@ -187,7 +187,7 @@ jobs:
 
   pypi-test:
     name: Publish to TestPyPI
-    needs: [scan-1, scan-2, python-test, docker-test]
+    needs: [scan-1, scan-2, scan-3, python-test, docker-test]
     runs-on: ubuntu-latest
 
     environment:
