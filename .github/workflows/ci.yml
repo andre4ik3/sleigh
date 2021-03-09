@@ -1,8 +1,5 @@
 name: CI
-
-on:
-  push:
-  pull_request:
+on: push
 
 jobs:
   init:
@@ -11,7 +8,6 @@ jobs:
 
     outputs:
       skip: ${{ steps.ci-skip-step.outputs.ci-skip }}
-      skip-not: ${{ steps.ci-skip-step.outputs.ci-skip-not }}
 
     steps:
       - name: Checkout Repository
@@ -27,11 +23,6 @@ jobs:
     name: Lint Code with Flake8
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: [3.7, 3.8, 3.9]
-      fail-fast: false
-
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
@@ -39,7 +30,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
 
     - name: Install Flake8 & Pylint
       run: |
@@ -57,7 +48,6 @@ jobs:
     name: Black Format
     needs: lint
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - name: Checkout Repository
@@ -170,40 +160,11 @@ jobs:
     name: Docker Tests
     needs: [lint, init]
     if: needs.init.outputs.skip == 'false'
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-      fail-fast: false
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-
-    - name: Install Docker
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install --cask docker
-        xattr -d -r com.apple.quarantine /Applications/Docker.app
-
-        # Docker Setup
-        sudo /bin/cp /Applications/Docker.app/Contents/Library/LaunchServices/com.docker.vmnetd /Library/PrivilegedHelperTools
-        sudo /bin/cp /Applications/Docker.app/Contents/Resources/com.docker.vmnetd.plist /Library/LaunchDaemons/
-        sudo /bin/chmod 544 /Library/PrivilegedHelperTools/com.docker.vmnetd
-        sudo /bin/chmod 644 /Library/LaunchDaemons/com.docker.vmnetd.plist
-        sudo /bin/launchctl load /Library/LaunchDaemons/com.docker.vmnetd.plist
-        open -g -a /Applications/Docker.app
-
-        # Wait for Docker to start
-        i=0
-        while ! docker system info &>/dev/null; do
-          (( i++ == 0 )) && printf %s '-- Waiting for Docker to finish starting up...' || printf '.'
-          sleep 1
-        done
-        (( i )) && printf '\n'
-
-        echo "-- Docker is ready."
 
     - name: Build Image
       run: docker-compose --file docker-compose.test.yml build
@@ -271,7 +232,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: production
+      name: GitHub Packages
       url: https://github.com/users/andre4ik3/packages/container/package/sleigh
 
     steps:
