@@ -6,7 +6,9 @@ WORKDIR /etc/sleigh
 COPY . .
 
 RUN apk add --no-cache alpine-sdk libffi-dev nginx
-RUN pip install --no-cache-dir -U pip -r requirements.txt
+RUN pip install --no-cache-dir -U pip wheel pipenv
+RUN pipenv install
 
 EXPOSE 8443
 CMD ["extra/start.sh"]
+
