@@ -44,48 +44,58 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --format='::warning file=%(path)s,line=%(row)d,col=%(col)d,::%(text)s' --statistics
         echo "::endgroup::"
 
+  codecov:
+    name: Upload Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Upload Code Coverage
+      uses: codecov/codecov-action@v1
+
   format:
     name: Black Format
     needs: lint
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
 
-      - name: Install Black
-        run: |
-          python -m pip install -U pip wheel
-          python -m pip install -U black
+    - name: Install Black
+      run: |
+        python -m pip install -U pip wheel
+        python -m pip install -U black
 
-      - name: Check Format
-        run: /bin/bash -c 'black --check .; echo "should_format=$?" >> $GITHUB_ENV; exit 0'
+    - name: Check Format
+      run: /bin/bash -c 'black --check .; echo "should_format=$?" >> $GITHUB_ENV; exit 0'
 
-      - name: Reformat Code
-        if: env.should_format == 1
-        run: black .
+    - name: Reformat Code
+      if: env.should_format == 1
+      run: black .
 
-      - name: Commit New Code
-        if: env.should_format == 1
-        run: |
-          git config --global user.name 'blackbot'
-          git config --global user.email 'andre4ik3@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git stash
-          git pull
-          git stash pop
-          git commit -am "[ci-skip] Reformat Code with Black"
-          git push origin HEAD:$GITHUB_REF
+    - name: Commit New Code
+      if: env.should_format == 1
+      run: |
+        git config --global user.name 'blackbot'
+        git config --global user.email 'andre4ik3@users.noreply.github.com'
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git stash
+        git pull
+        git stash pop
+        git commit -am "[ci-skip] Reformat Code with Black"
+        git push origin HEAD:$GITHUB_REF
 
   scan-1:
     name: GraphQL Scan
-    needs: [lint, init]
+    needs: [format, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
@@ -104,7 +114,7 @@ jobs:
 
   scan-2:
     name: OSSAR Scan
-    needs: [lint, init]
+    needs: [format, init]
     if: needs.init.outputs.skip == 'false'
     runs-on: windows-latest
 
@@ -236,35 +246,35 @@ jobs:
       url: https://github.com/andre4ik3/sleigh/packages/642451
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: Build Image
-        run: docker build . --file Dockerfile --tag sleigh
+    - name: Build Image
+      run: docker build . --file Dockerfile --tag sleigh
 
-      - name: Get Ready to Push
-        run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/sleigh
+    - name: Get Ready to Push
+      run: |
+        IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/sleigh
 
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+        # Strip "v" prefix from tag name
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
+        # Use Docker `latest` tag convention
+        [ "$VERSION" == "main" ] && VERSION=latest
 
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
 
-          docker tag sleigh $IMAGE_ID:$VERSION
+        docker tag sleigh $IMAGE_ID:$VERSION
 
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+    - name: Login to GitHub Packages
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      - name: Push Image to GitHub Packages
-        run: docker push $IMAGE_ID:$VERSION
+    - name: Push Image to GitHub Packages
+      run: docker push $IMAGE_ID:$VERSION
