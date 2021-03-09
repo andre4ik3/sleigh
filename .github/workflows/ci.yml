@@ -204,7 +204,7 @@ jobs:
     - name: Install Build Dependencies
       run: |
         python -m pip install -U pip wheel pipenv
-        pipenv install build twine
+        pipenv install --skip-lock build twine
 
     - name: Build Distribution
       run: cd sleigh; pipenv run python -m build
@@ -231,7 +231,7 @@ jobs:
     - name: Install Build Dependencies
       run: |
         python -m pip install -U pip wheel pipenv
-        pipenv install build twine
+        pipenv install --skip-lock build twine
 
     - name: Build Distribution
       run: cd sleigh; pipenv run python -m build
